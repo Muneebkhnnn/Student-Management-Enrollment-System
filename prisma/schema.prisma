@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Status {
+  Active
+  Inactive
+}
+
+model Student {
+  id              Int      @id @default(autoincrement())
+  full_name       String
+  email           String   @unique // stored lowercase; see the CHECK in the init migration
+  phone_number    String
+  course          String
+  enrollment_date DateTime @db.Date
+  status          Status   @default(Active)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([status, course])
+  @@map("students")
+}

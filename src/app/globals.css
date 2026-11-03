@@ -1,0 +1,81 @@
+:root {
+  --bg: #eef1f5;
+  --panel: #ffffff;
+  --ink: #17212b;
+  --muted: #5b6876;
+  --line: #d5dbe3;
+  --accent: #0b6e69;
+  --accent-ink: #ffffff;
+  --bad: #a3231b;
+  --bad-bg: #fdecea;
+  --good: #14653a;
+  --good-bg: #e6f4ec;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
+.top h1 { margin: 0; font-size: 1.75rem; letter-spacing: -0.01em; }
+.top p { margin: 4px 0 24px; color: var(--muted); }
+.grid { display: grid; gap: 20px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .grid { grid-template-columns: 340px 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+.panel h2 { margin: 0 0 16px; font-size: 1.1rem; }
+.count { margin-left: 6px; font-weight: 500; color: var(--muted); }
+.field { margin-bottom: 14px; }
+label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.9rem; }
+input, select {
+  width: 100%; padding: 9px 10px; font: inherit; color: inherit;
+  background: #fff; border: 1px solid #9aa6b4; border-radius: 6px;
+}
+input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--bad); }
+:is(input, select, button):focus-visible { outline: 3px solid #7fc7c2; outline-offset: 1px; }
+.err { margin: 4px 0 0; color: var(--bad); font-size: 0.875rem; }
+button[type="submit"], .btn {
+  padding: 10px 14px; font: inherit; font-weight: 600; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 6px;
+}
+button[type="submit"] { flex: 1; }
+button:disabled { opacity: 0.6; cursor: progress; }
+.btn { padding: 6px 10px; font-size: 0.875rem; }
+.btn.secondary { background: #fff; color: var(--ink); border-color: #9aa6b4; }
+.btn.danger-outline { background: #fff; color: var(--bad); border-color: var(--bad); }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+.banner { margin: 0 0 14px; padding: 10px 12px; border-radius: 6px; font-size: 0.925rem; }
+.bad { background: var(--bad-bg); color: var(--bad); }
+.good { background: var(--good-bg); color: var(--good); }
+.link { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+.empty, .muted { color: var(--muted); }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 560px; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid; }
+.badge.on { color: var(--good); background: var(--good-bg); border-color: #9fd2b4; }
+.badge.off { color: var(--muted); background: #eef0f3; border-color: var(--line); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; }
+.stat-label { color: var(--muted); font-size: 0.85rem; }
+.stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+.filters .field { margin: 0; min-width: 130px; }
+.filters .grow { flex: 1 1 220px; }
+.filters .btn { margin-bottom: 1px; }
+.form-actions { display: flex; gap: 10px; }
+.form-actions .btn { padding: 10px 14px; font-size: 1rem; }
+.actions { white-space: nowrap; }
+.actions .btn + .btn { margin-left: 6px; }
+tr.editing td { background: #eaf4f3; }
+.dialog { border: 1px solid var(--line); border-radius: 8px; padding: 20px; max-width: 420px; width: calc(100% - 32px); color: var(--ink); }
+.dialog::backdrop { background: rgba(23, 33, 43, 0.5); }
+.dialog h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+@media (max-width: 520px) { .stat-value { font-size: 1.4rem; } .stat { padding: 10px 12px; } }
