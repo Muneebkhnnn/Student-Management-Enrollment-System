@@ -29,4 +29,3 @@
 - **Known gaps, deliberately not fixed:** last-write-wins on concurrent edits (would need a version column), no UI automated tests, search behaviour with `%`/`_` unverified, TLS certificate not verified.
 - **Not yet verified:** nothing from Day 3 has been run either. Re-run the whole checklist in `docs/WALKTHROUGH.md` before submitting and record real problems here.
 
-_Add your own entries: wrong assumptions, abandoned approaches, bugs you hit._
