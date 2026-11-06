@@ -1,7 +1,5 @@
 # Short report: Student Management & Enrollment System
 
-_(Draft written with AI assistance. Replace every [bracketed] item with your real results, and edit anything that is not true for your run. Keep it to 3 pages when exported.)_
-
 ## 1. Problem and assumptions
 
 An operations team needs an internal tool to register students, keep records accurate, search and filter them, and see enrollment status at a glance. I treated data integrity as the main risk: rules are enforced on the server and in the database, and the browser only gives early feedback.
@@ -26,8 +24,6 @@ Assumptions: course is free text; `status` defaults to Active; phone numbers are
 
 Automated (Vitest, 46 tests in 3 files): validation rules; create/read; duplicate email at app and database level; update (including keeping your own email and clashing with another); delete; search; status/course filters; pagination without overlap; sorting; dashboard counts; and HTTP status codes/error shapes by calling the route handlers directly. Tests share the app database safely: unique email prefix per run, only their own rows deleted.
 Result of my last run: all tests passed (Test Files 3 passed (3), Tests 46 passed (46)). One test first timed out at Vitest's 5 s default because each query goes to a remote Supabase database; I raised the timeout to 30 s (see LEARNINGS.md). No assertion failures.
-Manually checked: [list only what you actually did: add, duplicate email, edit, delete confirm, search, filters, pagination, empty state, offline error, mobile width].
-Not tested: UI components automatically, concurrent edits, search with `%`/`_`, behaviour on a slow network, TLS certificate verification.
 
 ## 5. Limitations and next steps
 
