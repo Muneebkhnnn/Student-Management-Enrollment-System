@@ -18,7 +18,7 @@ import { makeRun } from "./helpers";
 const { runId, prefix, email, valid } = makeRun();
 const parse = (n, extra) => studentSchema.parse(valid(n, extra));
 const make = (n, extra) => createStudent(db, parse(n, extra));
-const emails = (list) => list.map((s) => s.email).sort();
+const emails = (result) => result.items.map((s) => s.email).sort();
 
 const rawRow = (e) => ({
   full_name: "A",
@@ -50,7 +50,7 @@ describe("create and read", () => {
     expect(created.id).toBeGreaterThan(0);
     expect(created.enrollment_date).toBe("2026-11-03");
     expect(await getStudent(db, created.id)).toMatchObject({ full_name: "Asha Verma", email: email(1) });
-    expect((await listStudents(db)).some((s) => s.id === created.id)).toBe(true);
+    expect((await listStudents(db, { search: prefix })).items.map((s) => s.id)).toContain(created.id);
   });
 
   it("returns undefined for a missing student", async () => {
@@ -60,7 +60,7 @@ describe("create and read", () => {
   it("lists newest first", async () => {
     const a = await make(3);
     const b = await make(4);
-    const ids = (await listStudents(db)).map((s) => s.id);
+    const ids = (await listStudents(db, { search: prefix })).items.map((s) => s.id);
     expect(ids.indexOf(b.id)).toBeGreaterThanOrEqual(0);
     expect(ids.indexOf(b.id)).toBeLessThan(ids.indexOf(a.id));
   });
@@ -131,7 +131,7 @@ describe("search and filters", () => {
     expect(emails(await listStudents(db, { course }))).toEqual([email(1), email(2)]);
     expect(emails(await listStudents(db, { course, status: "Inactive" }))).toEqual([email(2)]);
     expect(emails(await listStudents(db, { course, search: "alpha" }))).toEqual([email(1)]);
-    expect(await listStudents(db, { course: `nope-${runId}` })).toEqual([]);
+    expect(emails(await listStudents(db, { course: `nope-${runId}` }))).toEqual([]);
   });
 });
 
@@ -143,5 +143,29 @@ describe("dashboard", () => {
     expect(stats.total).toBe(stats.active + stats.inactive);
     expect(stats.inactive).toBeGreaterThanOrEqual(1);
     expect(stats.courses).toContain(course);
+  });
+});
+
+describe("pagination and sorting", () => {
+  it("pages through results, reports totals, and never overlaps pages", async () => {
+    for (const n of [1, 2, 3, 4, 5]) await make(n);
+    const q = { search: prefix, pageSize: 2 };
+    const p1 = await listStudents(db, { ...q, page: 1 });
+    const p2 = await listStudents(db, { ...q, page: 2 });
+    expect(p1).toMatchObject({ total: 5, totalPages: 3, page: 1, pageSize: 2 });
+    expect(p1.items).toHaveLength(2);
+    expect((await listStudents(db, { ...q, page: 3 })).items).toHaveLength(1);
+    expect((await listStudents(db, { ...q, page: 4 })).items).toHaveLength(0); // past the end
+    expect(new Set([...p1.items, ...p2.items].map((s) => s.id)).size).toBe(4);
+  });
+
+  it("sorts by the requested field and direction", async () => {
+    await make(1, { full_name: `N-${runId}-b` });
+    await make(2, { full_name: `N-${runId}-a` });
+    await make(3, { full_name: `N-${runId}-c` });
+    const last = async (order) =>
+      (await listStudents(db, { search: prefix, sort: "full_name", order })).items.map((s) => s.full_name.slice(-1));
+    expect(await last("asc")).toEqual(["a", "b", "c"]);
+    expect(await last("desc")).toEqual(["c", "b", "a"]);
   });
 });

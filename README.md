@@ -1,12 +1,13 @@
 # Student Management & Enrollment System
 
 Internal tool for registering students and keeping enrollment records accurate.
-Built for the EduRankAI 3-day full-stack challenge. **Status: Day 2 (core workflow complete).**
+Built for the EduRankAI 3-day full-stack challenge. **Status: Day 3 (final).**
 
 ## Features
 - Create, view, edit, and delete students (delete asks for confirmation).
 - Student list with loading, empty, and error states.
 - Search by name or email, filter by status and course (filters combine with search).
+- Sorting (name, enrollment date, course, status, date added) and pagination (10/25/50 per page).
 - Dashboard with total / active / inactive counts computed from the stored rows.
 - Server-side validation, unique email handling, and consistent JSON errors.
 
@@ -29,7 +30,7 @@ Production: `npm run build && npm start`.
 ## Tests
 `npm test` runs everything. Validation tests need no database. Storage and API tests run against the same database as the app (`DATABASE_URL`, or `TEST_DATABASE_URL` if set). They never truncate: each run uses a unique email prefix and deletes only its own rows afterwards.
 - `tests/validation.test.js`: field rules.
-- `tests/students.test.js`: create, duplicate email (app and database level), update, delete, search, filters, dashboard counts.
+- `tests/students.test.js`: create, duplicate email (app and database level), update, delete, search, filters, pagination, sorting, dashboard counts.
 - `tests/api.test.js`: route handlers called with real `Request` objects (status codes, error shapes).
 
 ## Environment variables
@@ -49,12 +50,14 @@ One table, `students`, defined in `prisma/schema.prisma`; migration in `prisma/m
 - Extra columns: `created_at`, `updated_at`.
 
 ## API
+Full request/response examples are in [`docs/API.md`](docs/API.md).
+
 All errors look like `{ "error": { "code", "message", "fields"? } }`. Success bodies are `{ "data": ... }`.
 
 | Method | Path | Purpose | Success | Errors |
 |---|---|---|---|---|
 | POST | `/api/students` | Create a student | 201 + `Location` | 400 `INVALID_JSON`, 422 `VALIDATION_ERROR`, 409 `DUPLICATE_EMAIL` |
-| GET | `/api/students` | List students, newest first. Optional `search`, `status` (`Active`/`Inactive`), `course` | 200 | 400 `INVALID_QUERY` |
+| GET | `/api/students` | List students. Optional `search`, `status`, `course`, `page`, `pageSize` (1–50), `sort`, `order`. Returns `{ data, meta }` | 200 | 400 `INVALID_QUERY` |
 | GET | `/api/students/:id` | Get one student | 200 | 400 `INVALID_ID`, 404 `NOT_FOUND` |
 | PUT | `/api/students/:id` | Replace a student (same body as create) | 200 | 400, 404, 409, 422 |
 | DELETE | `/api/students/:id` | Delete a student (permanent) | 204 | 400, 404 |
@@ -74,15 +77,27 @@ curl -X DELETE localhost:3000/api/students/1
 - `course` is free text, and the course filter is an exact match (so "Design" and "design" are different courses).
 - Search is a case-insensitive substring match on name or email.
 - Update is a full replacement (PUT); delete is permanent (no soft delete).
+- Default order is newest added first; page size defaults to 10 (max 50). Enrollment dates must be between 1900 and 2100.
 - Phone: optional leading `+`, digits, spaces, `-`, `()`; 7–15 digits.
 - Dates are plain `YYYY-MM-DD` (no time zone).
 - No authentication; this is an internal tool.
 
 ## Known limitations
-- No pagination or sorting yet (Day 3).
+- Sorting uses the database collation for text, so case/accents may order differently than a human expects.
+- Search passes the typed text to Postgres `ILIKE`-style matching through Prisma; behaviour with `%` and `_` in the search box has not been tested.
+- No authentication, no audit trail, no bulk import/export, and no seed data.
 - The DB connection encrypts with TLS but does not verify the server certificate (`rejectUnauthorized: false` in `src/lib/db.js`). For production, supply Supabase's CA certificate and turn verification on.
 - Two people editing the same student: last write wins (no version check).
 - The UI has no automated tests; it was checked by hand only.
 
+## Troubleshooting
+- **P1001 / can't reach database:** use the Session pooler string for `DIRECT_URL` and check password URL-encoding.
+- **TLS / self-signed certificate errors:** remove any `sslmode` from `DATABASE_URL`.
+- **Prisma can't find a datasource URL:** add `--config prisma.config.mjs` to the npm scripts that call `prisma`.
+- **Tests fail with "Set DATABASE_URL":** create `.env` first and run `npm run db:deploy`.
+
+## Project docs
+`docs/API.md` (endpoints), `docs/REPORT.md` (short report), `docs/WALKTHROUGH.md` (demo script), `docs/DAY1.md`–`DAY3.md` (daily notes and check-ins), `LEARNINGS.md`.
+
 ## AI assistance disclosure
-Claude (Anthropic) was used to scaffold Days 1–2: structure, schema, validation, API routes, UI, tests, and docs. *Edit this with what you changed or verified yourself.*
+Claude was used as part of development of this project

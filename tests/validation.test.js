@@ -30,6 +30,8 @@ describe("validation", () => {
     ["course", ""],
     ["enrollment_date", "2026-02-31"],
     ["enrollment_date", "03/11/2026"],
+    ["enrollment_date", "1800-01-01"],
+    ["enrollment_date", "2200-01-01"],
     ["status", "Pending"],
   ])("rejects invalid %s (%j)", (field, value) => {
     const r = studentSchema.safeParse({ ...valid, [field]: value });

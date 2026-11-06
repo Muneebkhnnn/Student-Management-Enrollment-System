@@ -1,4 +1,4 @@
-import { STATUSES } from "@/lib/constants";
+import { SORT_OPTIONS, STATUSES } from "@/lib/constants";
 
 export function Filters({ filters, courses, onChange }) {
   const set = (key) => (e) => onChange({ ...filters, [key]: e.target.value });
@@ -27,9 +27,19 @@ export function Filters({ filters, courses, onChange }) {
           ))}
         </select>
       </div>
+      <div className="field">
+        <label htmlFor="fo">Sort by</label>
+        <select id="fo" value={filters.sort} onChange={set("sort")}>
+          {SORT_OPTIONS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
       {active && (
-        <button type="button" className="btn secondary" onClick={() => onChange({ search: "", status: "", course: "" })}>
-          Clear
+        <button type="button" className="btn secondary" onClick={() => onChange({ ...filters, search: "", status: "", course: "" })}>
+          Clear filters
         </button>
       )}
     </form>

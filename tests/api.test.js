@@ -129,3 +129,23 @@ describe("GET /api/dashboard", () => {
     expect(data.courses).toContain(course);
   });
 });
+
+describe("GET /api/students paging and sorting", () => {
+  it("returns meta and the requested page", async () => {
+    for (const n of [1, 2, 3]) await create(n);
+    const res = await listGET(req("GET", undefined, `/api/students?search=${prefix}&pageSize=2&page=2&sort=full_name&order=asc`));
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.meta).toMatchObject({ total: 3, page: 2, pageSize: 2, totalPages: 2 });
+    expect(json.data).toHaveLength(1);
+  });
+
+  it.each(["page=0", "page=abc", "pageSize=500", "sort=password", "order=sideways"])(
+    "returns 400 for invalid parameter %s",
+    async (qs) => {
+      const res = await listGET(req("GET", undefined, `/api/students?${qs}`));
+      expect(res.status).toBe(400);
+      expect((await res.json()).error.code).toBe("INVALID_QUERY");
+    },
+  );
+});

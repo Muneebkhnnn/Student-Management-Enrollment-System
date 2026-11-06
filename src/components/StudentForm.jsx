@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/client";
 import { STATUSES } from "@/lib/constants";
 
@@ -28,6 +28,12 @@ export function StudentForm({ student, onSaved, onCancel }) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
+  const formRef = useRef(null);
+
+  // Move keyboard/screen-reader focus to the first field with an error.
+  useEffect(() => {
+    formRef.current?.querySelector('[aria-invalid="true"]')?.focus();
+  }, [errors]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -52,7 +58,7 @@ export function StudentForm({ student, onSaved, onCancel }) {
   return (
     <section aria-labelledby="form-h" className="panel">
       <h2 id="form-h">{editing ? "Edit student" : "Add student"}</h2>
-      <form onSubmit={onSubmit} noValidate>
+      <form ref={formRef} onSubmit={onSubmit} noValidate>
         <Field name="full_name" label="Full name" error={errors.full_name}>
           {(p) => <input {...p} name="full_name" autoComplete="name" defaultValue={student?.full_name} autoFocus={editing} />}
         </Field>

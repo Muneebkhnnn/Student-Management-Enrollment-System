@@ -41,7 +41,8 @@ button[type="submit"], .btn {
   background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 6px;
 }
 button[type="submit"] { flex: 1; }
-button:disabled { opacity: 0.6; cursor: progress; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+button[type="submit"]:disabled { cursor: progress; }
 .btn { padding: 6px 10px; font-size: 0.875rem; }
 .btn.secondary { background: #fff; color: var(--ink); border-color: #9aa6b4; }
 .btn.danger-outline { background: #fff; color: var(--bad); border-color: var(--bad); }
@@ -79,3 +80,9 @@ tr.editing td { background: #eaf4f3; }
 .dialog h2 { margin: 0 0 8px; font-size: 1.1rem; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
 @media (max-width: 520px) { .stat-value { font-size: 1.4rem; } .stat { padding: 10px 12px; } }
+.dim { opacity: 0.55; transition: opacity 0.15s; }
+.pager { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 14px; }
+.pager p { margin: 0; }
+.pager-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pager-controls select { width: auto; padding: 6px 8px; }
+@media (max-width: 520px) { .actions { white-space: normal; } .actions .btn { margin: 0 6px 6px 0; } }

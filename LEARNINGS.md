@@ -21,4 +21,12 @@
 - **Route tests** call the exported handlers with real `Request` objects; this needs the `@` alias in `vitest.config.mjs`. Test files run one after another (`fileParallelism: false`) because they share a database.
 - **Not yet verified:** like Day 1, none of this has been run. Watch for: `groupBy`/`distinct` behaviour with the pg adapter, `next/server` importing under Vitest, and the `<dialog>` focus behaviour in your browser.
 
+## Day 3
+- **Pagination needs a stable order.** Every sort adds `id` as a tie-breaker, otherwise rows with equal values (e.g. same course) can repeat or vanish between pages. Count and rows are fetched in one `$transaction` for a consistent snapshot.
+- **Edge cases handled:** page past the end after deleting the last row of the last page (UI jumps back), selected course filter disappearing after its last student is deleted, enrollment dates outside 1900–2100, double submit (buttons disabled while saving), deleting a student that is open in the edit form or already deleted elsewhere.
+- **Accessibility:** focus moves to the first invalid field after a failed submit; the success notice lives in an always-present `role="status"` region; the sort control is a labelled `<select>` (works on phones, no clickable table headers needed).
+- **Decision: sort `<select>` instead of clickable headers.** Less code, works the same with keyboard and touch.
+- **Known gaps, deliberately not fixed:** last-write-wins on concurrent edits (would need a version column), no UI automated tests, search behaviour with `%`/`_` unverified, TLS certificate not verified.
+- **Not yet verified:** nothing from Day 3 has been run either. Re-run the whole checklist in `docs/WALKTHROUGH.md` before submitting and record real problems here.
+
 _Add your own entries: wrong assumptions, abandoned approaches, bugs you hit._

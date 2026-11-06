@@ -7,7 +7,7 @@ export async function api(path, options = {}) {
     });
     if (res.status === 204) return { ok: true, data: null };
     const json = await res.json().catch(() => null);
-    if (res.ok) return { ok: true, data: json?.data };
+    if (res.ok) return { ok: true, data: json?.data, meta: json?.meta };
     return { ok: false, error: json?.error ?? { code: "UNKNOWN", message: "Something went wrong. Try again." } };
   } catch {
     return {

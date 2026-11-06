@@ -34,8 +34,14 @@ export async function getStudent(db, id) {
   return row ? toStudent(row) : undefined;
 }
 
-/** Search matches name OR email (case-insensitive, substring). Filters are ANDed with it. */
-export async function listStudents(db, { search, status, course } = {}) {
+/**
+ * Search matches name OR email (case-insensitive substring); status/course filters are ANDed with it.
+ * Sorting always adds `id` as a tie-breaker so pages never overlap or skip rows.
+ */
+export async function listStudents(
+  db,
+  { search, status, course, page = 1, pageSize = 10, sort = "created_at", order = "desc" } = {},
+) {
   const where = {};
   if (status) where.status = status;
   if (course) where.course = course;
@@ -45,7 +51,17 @@ export async function listStudents(db, { search, status, course } = {}) {
       { email: { contains: search, mode: "insensitive" } },
     ];
   }
-  return (await db.student.findMany({ where, orderBy: { id: "desc" } })).map(toStudent);
+  // One transaction so the count and the rows come from the same snapshot.
+  const [total, rows] = await db.$transaction([
+    db.student.count({ where }),
+    db.student.findMany({
+      where,
+      orderBy: [{ [sort]: order }, { id: order }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ]);
+  return { items: rows.map(toStudent), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
 /** Returns the updated student, or undefined if it doesn't exist. */

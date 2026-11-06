@@ -8,10 +8,11 @@ export async function GET(request) {
   const raw = Object.fromEntries([...new URL(request.url).searchParams].filter(([, v]) => v !== ""));
   const query = listQuerySchema.safeParse(raw);
   if (!query.success) {
-    return fail(400, "INVALID_QUERY", "Invalid search or filter.", fieldErrors(query.error));
+    return fail(400, "INVALID_QUERY", "Invalid search, filter, paging, or sort parameter.", fieldErrors(query.error));
   }
   try {
-    return NextResponse.json({ data: await listStudents(getDb(), query.data) });
+    const { items, ...meta } = await listStudents(getDb(), query.data);
+    return NextResponse.json({ data: items, meta });
   } catch (err) {
     console.error(err);
     return fail(500, "INTERNAL_ERROR", "Could not load students.");
